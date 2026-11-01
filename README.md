@@ -3,6 +3,7 @@
 A lightweight, zero-infrastructure forensic tool designed for incident responders. It ingests Linux `auth.log` and Nginx `access.log` files, preserves them untouched in a read-only evidence store with SHA-256 integrity manifests, parses them into normalized SQLite databases with UTC timestamps and full-text search (FTS5), records parsing gaps without dropping unparsed lines, and automatically estimates and corrects inter-host clock skew.
 
 **Demo Video:** [https://youtu.be/8hDyV-rBxMk](https://youtu.be/8hDyV-rBxMk)
+**Prototype DEMO**: [https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk](https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk)
 
 ---
 
@@ -130,6 +131,7 @@ Tested against 3 synthetic incidents with ground truth:
 ## Deliverables
 
 - [x] [Demo Video](https://youtu.be/8hDyV-rBxMk): 5-minute video walkthrough / demonstration (`https://youtu.be/8hDyV-rBxMk`)
+- [x] [Prototype Demo](https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk): 5-minute prototype walkthrough/ demostartion(`https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk`)
 - [x] [docs/pseudocode.md](docs/pseudocode.md): Core algorithm pseudocode snippet
 - [x] [A3-PS013-TC067.pdf](A3-PS013-TC067.pdf): Final presentation slide deck
 - [x] [evaluation/triage_summary.md](evaluation/triage_summary.md): Human triage timing comparison summary
