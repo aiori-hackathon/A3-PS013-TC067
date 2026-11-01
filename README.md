@@ -3,6 +3,7 @@
 A lightweight, zero-infrastructure forensic tool designed for incident responders. It ingests Linux `auth.log` and Nginx `access.log` files, preserves them untouched in a read-only evidence store with SHA-256 integrity manifests, parses them into normalized SQLite databases with UTC timestamps and full-text search (FTS5), records parsing gaps without dropping unparsed lines, and automatically estimates and corrects inter-host clock skew.
 
 **Demo Video:** [https://youtu.be/8hDyV-rBxMk](https://youtu.be/8hDyV-rBxMk)
+
 **Prototype DEMO**: [https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk](https://drive.google.com/file/d/1-KX6UuWxX53S81OdAnxQTQt7mz8cUzwf/view?usp=drivesdk)
 
 ---
