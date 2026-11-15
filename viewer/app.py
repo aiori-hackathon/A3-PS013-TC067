@@ -3,12 +3,14 @@ import pandas as pd
 import sqlite3
 import argparse
 import sys
+import tempfile
 from pathlib import Path
 import altair as alt
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from forensic.timeline import query_events, Filters, summary_stats, gap_summary, skew_summary, evidence_manifest, context_window
 from forensic.ingest import verify_items
+from forensic.report import generate_report
 
 st.set_page_config(page_title="Forensic Viewer", layout="wide")
 
@@ -51,6 +53,54 @@ f_from = st.sidebar.text_input("From (ISO UTC)")
 f_to = st.sidebar.text_input("To (ISO UTC)")
 use_corrected = st.sidebar.checkbox("Use skew-corrected time", value=True)
 limit = st.sidebar.number_input("Event Limit", min_value=1, max_value=100000, value=5000)
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("Export")
+if st.sidebar.button("Generate report"):
+    try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            html_p = tmp_path / "report.html"
+            json_p = tmp_path / "report.json"
+            csv_p = tmp_path / "report.csv"
+            generate_report(case_dir, html_p, json_p, csv_p)
+
+            export_files = {}
+            if html_p.exists():
+                export_files["html"] = html_p.read_bytes()
+            if json_p.exists():
+                export_files["json"] = json_p.read_bytes()
+            if csv_p.exists():
+                export_files["csv"] = csv_p.read_bytes()
+
+            st.session_state["export_files"] = export_files
+            st.sidebar.success("Report generated")
+    except Exception as e:
+        st.sidebar.error(f"Failed to generate report: {e}")
+
+if "export_files" in st.session_state:
+    files = st.session_state["export_files"]
+    if "html" in files:
+        st.sidebar.download_button(
+            "Download report (HTML)",
+            data=files["html"],
+            file_name=f"{case_dir.name}_report.html",
+            mime="text/html",
+        )
+    if "json" in files:
+        st.sidebar.download_button(
+            "Download events (JSON)",
+            data=files["json"],
+            file_name=f"{case_dir.name}_report.json",
+            mime="application/json",
+        )
+    if "csv" in files:
+        st.sidebar.download_button(
+            "Download events (CSV)",
+            data=files["csv"],
+            file_name=f"{case_dir.name}_report.csv",
+            mime="text/csv",
+        )
 
 filters_dataclass = Filters(
     hosts=f_hosts if f_hosts else None,
