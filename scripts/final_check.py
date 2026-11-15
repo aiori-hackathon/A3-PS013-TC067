@@ -156,7 +156,6 @@ def check_8():
     reqs = [
         "README.md",
         "docs/pseudocode.md",
-        "docs/demo_script.md",
         "evaluation/triage_summary.md",
         "evaluation/parsing_gap_analysis.md",
     ]

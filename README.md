@@ -41,6 +41,12 @@ Re-computes SHA-256 hashes of all stored evidence files and compares them agains
 forensic verify --case cases/s1_ssh_bruteforce
 ```
 
+### Tamper demo
+```bash
+python scripts/tamper_demo.py --case cases/s3_clock_skew
+```
+Copies the case to a temporary folder, appends one byte to a stored evidence file, and shows verify reporting TAMPERED. The real case is never modified.
+
 ### 3. Build Database & Full-Text Search
 Parses stored evidence lines, converts timestamps to normalized UTC ISO-8601, extracts structured attributes (`event_type`, `severity`, `src_ip`, `username`, `detail`), records unparsed lines into `parse_gaps`, and rebuilds the SQLite FTS5 search index:
 ```bash
