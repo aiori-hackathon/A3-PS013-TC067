@@ -24,4 +24,4 @@ Parse: Uses regex definitions (nginx, auth, etc.) to extract raw variables, reco
 Normalize: Re-formats fields to typed standards, notably standardizing the original timestamp into UTC while retaining ts_original untouched.
 Skew: finds anchors, which are the same event (same src_ip, event_type, detail, username) recorded on both a host and the reference host within 30 minutes, pairs them one-to-one, and uses the median of (reference time minus host time) as that host's offset. At least 3 anchors are required.
 Timeline: Generates a chronologically unified global timeline of ts_corrected, exporting structured CSVs, JSON reports, and an HTML interactive view.
-Report: Evaluates timeline density to find anomalies, flags failed authentication bursts, and summarizes gaps to guide manual review.
+Report: lists high and medium severity events (excluding routine logins), plus the first successful login and first web attack per source IP, with the evidence manifest, skew table, parsing gaps and limitations.
