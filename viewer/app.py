@@ -236,7 +236,68 @@ with tab5:
     skews = skew_summary(conn)
     if skews:
         st.dataframe(pd.DataFrame(skews))
-        # Optional before/after chart logic
-        st.write("Before/after chart can be rendered here with raw timestamps vs corrected.")
+        try:
+            cur = conn.execute(
+                "SELECT id, host, event_type, severity, message, ts_utc, ts_utc_corrected, skew_offset_s "
+                "FROM events WHERE skew_offset_s IS NOT NULL AND skew_offset_s != 0"
+            )
+            shifted_rows = [dict(r) for r in cur.fetchall()]
+            if not shifted_rows:
+                st.info("No events were shifted by skew correction.")
+            else:
+                records = []
+                for r in shifted_rows:
+                    records.append({
+                        "id": r["id"],
+                        "host": r["host"],
+                        "event_type": r["event_type"],
+                        "severity": r["severity"],
+                        "message": r["message"],
+                        "skew_offset_s": r["skew_offset_s"],
+                        "label": "Before (raw UTC)",
+                        "time": pd.to_datetime(r["ts_utc"], utc=True),
+                        "ts_utc": r["ts_utc"],
+                        "ts_utc_corrected": r["ts_utc_corrected"],
+                    })
+                    records.append({
+                        "id": r["id"],
+                        "host": r["host"],
+                        "event_type": r["event_type"],
+                        "severity": r["severity"],
+                        "message": r["message"],
+                        "skew_offset_s": r["skew_offset_s"],
+                        "label": "After (skew-corrected)",
+                        "time": pd.to_datetime(r["ts_utc_corrected"], utc=True),
+                        "ts_utc": r["ts_utc"],
+                        "ts_utc_corrected": r["ts_utc_corrected"],
+                    })
+                df_long = pd.DataFrame(records)
+
+                chart = (
+                    alt.Chart(df_long)
+                    .mark_point(filled=True, size=90)
+                    .encode(
+                        x=alt.X("time:T", title="Time (UTC)"),
+                        y=alt.Y("host:N", title="Host"),
+                        color=alt.Color("label:N", title="Time Type"),
+                        shape=alt.Shape("label:N", title="Time Type"),
+                        tooltip=["host", "event_type", "message", "label", "time:T"],
+                    )
+                    .properties(title="Event times before vs after skew correction")
+                )
+                st.altair_chart(chart, width="stretch")
+
+                st.subheader("Largest shifts")
+                high_med_rows = [r for r in shifted_rows if r["severity"] in ("high", "medium")]
+                shift_table_rows = high_med_rows if high_med_rows else shifted_rows
+                shift_table_rows = sorted(shift_table_rows, key=lambda x: x["ts_utc_corrected"])[:10]
+                df_shifts = pd.DataFrame(shift_table_rows)[
+                    ["host", "event_type", "message", "ts_utc", "ts_utc_corrected", "skew_offset_s"]
+                ].rename(columns={"ts_utc": "ts_utc (before)", "ts_utc_corrected": "ts_utc_corrected (after)"})
+                st.dataframe(df_shifts)
+
+                st.caption("Original timestamps are never changed; only the corrected column is added.")
+        except Exception as e:
+            st.error(f"Failed to render skew chart: {e}")
     else:
         st.write("No skew corrections applied.")
