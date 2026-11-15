@@ -123,6 +123,9 @@ Tested against 3 synthetic incidents with ground truth:
 
 - **Syslog Timestamp Ambiguity**: Syslog formats omit the year and timezone; these are declared by the operator (via `sources.json`) or inferred from file mtime.
 - **Anchor Pairing Assumption**: Anchor pairing assumes the same event (same source IP, event type, detail and username) appears on both hosts within 30 minutes (1800 s) of each other; the nearest unused match is paired one-to-one, and at least 3 anchors are required, otherwise no correction is applied and the operator should use --offset.
+- **Skew correction needs at least 3 matching events visible on both hosts; otherwise use a manual --offset.**
+- **Evidence is tamper-evident, not tamper-proof: someone with write access could recompute the hashes and manifest. Signing the manifest or storing its hash off-machine would address this.**
+- **Run commands in the order ingest, build, skew (run-all does this); running build after skew removes skew corrections.**
 - **DST Fold**: Daylight Saving Time fold ambiguity is treated with `fold=0`.
 - **Supported Formats**: Prototype supports Linux syslog (`auth.log`) and Nginx combined `access.log`.
 - **Out of Scope**: Not forensically certified; does not perform live endpoint takeover or malware removal.
