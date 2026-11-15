@@ -279,8 +279,8 @@ with tab5:
                     .encode(
                         x=alt.X("time:T", title="Time (UTC)"),
                         y=alt.Y("host:N", title="Host"),
-                        color=alt.Color("label:N", title="Time Type"),
-                        shape=alt.Shape("label:N", title="Time Type"),
+                        color=alt.Color("label:N", title="Timestamp"),
+                        shape=alt.Shape("label:N", title="Timestamp"),
                         tooltip=["host", "event_type", "message", "label", "time:T"],
                     )
                     .properties(title="Event times before vs after skew correction")
