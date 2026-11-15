@@ -48,7 +48,7 @@ forensic build --case cases/s1_ssh_bruteforce
 ```
 
 ### 4. Estimate & Correct Clock Skew
-Identifies multi-host anchor pairs (identical source IP, action type, and target within an observation window) to calculate median clock offset and standard deviation confidence notes:
+Identifies multi-host anchor pairs (same source IP, event type, detail and username on both hosts, within a 30-minute window) to calculate median clock offset and standard deviation confidence notes:
 ```bash
 # Automated anchor-based estimation:
 forensic skew --case cases/s3_clock_skew --reference web01
@@ -98,7 +98,7 @@ Tested against 3 synthetic incidents with ground truth:
 
 ## Results & Evaluation
 
-- **Ground Truth Validation**: 18 of 18 attack progression steps matched within 1.5 seconds across all 3 scenarios (`tests/test_ground_truth.py`).
+- **Ground Truth Validation**: All 18 ground-truth attack steps across the 3 scenarios are found by event type, host and attributes (`tests/test_ground_truth.py`); the only timing check is that the S3 skew offset is within 5 s of the planted -420 s.
 - **Clock Skew Resolution**: In S3, `db01` offset was estimated at -421.5 s (true offset: -420 s) with 10 anchor pairs and standard deviation 0.9 s (high confidence), restoring true causal ordering between `web01` webshell upload and `db01` pivot.
 - **Parsing Gap Transparency**: Zero silent drops. Identified 4 gaps in S1, 5 in S2, and 0 in S3; documented in [evaluation/parsing_gap_analysis.md](evaluation/parsing_gap_analysis.md).
 - **Triage Performance vs Manual Baseline**: In our small sample (6 timed sessions, testers who know the tool), the tool gave a 3.1x overall speedup (median 11.2 s vs 34.8 s) versus raw `grep`/`less`/`sort`, and the manual S3 session gave a wrong first-login time under the 7-minute clock skew while all tool answers were correct. These are indicative results only; see [evaluation/triage_summary.md](evaluation/triage_summary.md) for the data and limitations.
@@ -122,7 +122,7 @@ Tested against 3 synthetic incidents with ground truth:
 ## Known Limitations & Out of Scope
 
 - **Syslog Timestamp Ambiguity**: Syslog formats omit the year and timezone; these are declared by the operator (via `sources.json`) or inferred from file mtime.
-- **Anchor Pairing Assumption**: Clock skew anchor matching assumes corresponding actions on different hosts occur within 5 seconds of each other.
+- **Anchor Pairing Assumption**: Anchor pairing assumes the same event (same source IP, event type, detail and username) appears on both hosts within 30 minutes (1800 s) of each other; the nearest unused match is paired one-to-one, and at least 3 anchors are required, otherwise no correction is applied and the operator should use --offset.
 - **DST Fold**: Daylight Saving Time fold ambiguity is treated with `fold=0`.
 - **Supported Formats**: Prototype supports Linux syslog (`auth.log`) and Nginx combined `access.log`.
 - **Out of Scope**: Not forensically certified; does not perform live endpoint takeover or malware removal.
